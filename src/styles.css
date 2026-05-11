@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tarot-black: #07060a;
+  --color-tarot-gold: #d4af37;
+  --color-tarot-gold-soft: #f1d27a;
+  --color-tarot-purple: #2a1340;
+  --font-serif: "Cormorant Garamond", "Cinzel", "Playfair Display", ui-serif, Georgia, serif;
+}
+
+@keyframes particle-rise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translate3d(var(--drift, 0px), -110vh, 0) scale(1.15);
+    opacity: 0;
+  }
+}
+
+@keyframes wm-drift {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(160vw) translateY(-12px); }
+}
+
+:root {
+  --background: #07060a;
+  --foreground: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
+  background: #000;
+  color: #fff;
+}
+
+body {
+  overflow: hidden;
+  font-family: "Cormorant Garamond", "Cinzel", "Playfair Display", ui-serif, Georgia, serif;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
