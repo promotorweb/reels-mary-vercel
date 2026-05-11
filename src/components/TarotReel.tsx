@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { tarotCards, type TarotCard } from "@/lib/tarot-cards";
 
 const CARD_HEIGHT = 180;
-const SLOT_SPEEDS = [620, 540, 700];
+const SLOT_SPEEDS = [900, 720, 1080];
 
 function shuffle<T>(arr: T[], seed: number): T[] {
   const a = arr.slice();
