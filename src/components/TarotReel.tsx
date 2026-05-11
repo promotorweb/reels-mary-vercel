@@ -1,4 +1,3 @@
-```tsx
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { tarotCards, type TarotCard } from "@/lib/tarot-cards";
 
@@ -43,14 +42,19 @@ function Strip({
   useEffect(() => {
     let raf = 0;
 
-    const tick = (t: number) => {
-      if (lastTimeRef.current == null) lastTimeRef.current = t;
+    const tick = (time: number) => {
+      if (lastTimeRef.current === null) {
+        lastTimeRef.current = time;
+      }
 
-      const dt = (t - lastTimeRef.current) / 1000;
-      lastTimeRef.current = t;
+      const delta = (time - lastTimeRef.current) / 1000;
+      lastTimeRef.current = time;
 
-      let next = offsetRef.current + speed * dt;
-      if (next >= cycle) next -= cycle;
+      let next = offsetRef.current + speed * delta;
+
+      if (next >= cycle) {
+        next -= cycle;
+      }
 
       offsetRef.current = next;
 
@@ -58,11 +62,11 @@ function Strip({
         innerRef.current.style.transform = `translate3d(0, ${-next}px, 0)`;
       }
 
-      const idx = Math.floor((next + CARD_HEIGHT / 2) / CARD_HEIGHT) % cards.length;
+      const index = Math.floor((next + CARD_HEIGHT / 2) / CARD_HEIGHT) % cards.length;
 
-      if (idx !== lastIndexRef.current) {
-        lastIndexRef.current = idx;
-        onCurrentChange(cards[idx].name);
+      if (index !== lastIndexRef.current) {
+        lastIndexRef.current = index;
+        onCurrentChange(cards[index].name);
       }
 
       raf = requestAnimationFrame(tick);
@@ -71,7 +75,7 @@ function Strip({
     raf = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(raf);
-  }, [speed, cycle, cards, onCurrentChange]);
+  }, [cards, cycle, speed, onCurrentChange]);
 
   return (
     <div
@@ -83,9 +87,9 @@ function Strip({
       }}
     >
       <div ref={innerRef} style={{ willChange: "transform", transform: "translate3d(0,0,0)" }}>
-        {repeated.map((card, i) => (
+        {repeated.map((card, index) => (
           <div
-            key={`${card.id}-${i}`}
+            key={`${card.id}-${index}`}
             style={{
               height: CARD_HEIGHT,
               width: "100%",
@@ -120,12 +124,12 @@ function Strip({
 }
 
 function SlotColumn({ cards, speed }: { cards: TarotCard[]; speed: number }) {
-  const [currentName, setCurrentName] = useState(cards[0].name);
+  const [currentName, setCurrentName] = useState(cards[0]?.name ?? "");
 
   return (
-    <div className="flex flex-col items-center gap-2 w-[29%]">
+    <div className="flex w-[29%] flex-col items-center gap-2">
       <div
-        className="font-serif text-[12px] sm:text-[14px] tracking-wide text-tarot-gold text-center px-1 leading-tight min-h-[1.2em] truncate w-full"
+        className="min-h-[1.2em] w-full truncate px-1 text-center font-serif text-[12px] leading-tight tracking-wide text-tarot-gold sm:text-[14px]"
         style={{
           textShadow: "0 2px 6px rgba(0,0,0,0.85), 0 0 10px rgba(212,175,55,0.35)",
         }}
@@ -141,8 +145,8 @@ function SlotColumn({ cards, speed }: { cards: TarotCard[]; speed: number }) {
 function Particles() {
   const particles = useMemo(
     () =>
-      Array.from({ length: 38 }).map((_, i) => ({
-        id: i,
+      Array.from({ length: 38 }).map((_, index) => ({
+        id: index,
         left: Math.random() * 100,
         size: 1 + Math.random() * 3.2,
         duration: 9 + Math.random() * 14,
@@ -156,19 +160,19 @@ function Particles() {
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {particles.map((p) => (
+      {particles.map((particle) => (
         <span
-          key={p.id}
+          key={particle.id}
           className="absolute bottom-[-10px] rounded-full bg-tarot-gold"
           style={
             {
-              left: `${p.left}%`,
-              width: p.size,
-              height: p.size,
-              opacity: p.opacity,
-              filter: `blur(${p.blur}px) drop-shadow(0 0 6px rgba(212,175,55,0.7))`,
-              animation: `particle-rise ${p.duration}s linear ${p.delay}s infinite`,
-              "--drift": `${p.drift}px`,
+              left: `${particle.left}%`,
+              width: particle.size,
+              height: particle.size,
+              opacity: particle.opacity,
+              filter: `blur(${particle.blur}px) drop-shadow(0 0 6px rgba(212,175,55,0.7))`,
+              animation: `particle-rise ${particle.duration}s linear ${particle.delay}s infinite`,
+              "--drift": `${particle.drift}px`,
             } as CSSProperties
           }
         />
@@ -180,8 +184,8 @@ function Particles() {
 function Watermarks() {
   const marks = useMemo(
     () =>
-      Array.from({ length: 7 }).map((_, i) => ({
-        id: i,
+      Array.from({ length: 7 }).map((_, index) => ({
+        id: index,
         top: 6 + Math.random() * 88,
         size: 11 + Math.random() * 7,
         duration: 28 + Math.random() * 22,
@@ -193,18 +197,18 @@ function Watermarks() {
   );
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden z-[5]">
-      {marks.map((m) => (
+    <div className="pointer-events-none absolute inset-0 z-[5] overflow-hidden">
+      {marks.map((mark) => (
         <span
-          key={m.id}
+          key={mark.id}
           className="absolute whitespace-nowrap font-serif tracking-[0.25em]"
           style={{
-            top: `${m.top}%`,
+            top: `${mark.top}%`,
             left: "-30%",
-            fontSize: m.size,
-            opacity: m.opacity,
-            color: m.gold ? "rgb(212,175,55)" : "rgba(255,255,255,0.9)",
-            animation: `wm-drift ${m.duration}s linear ${m.delay}s infinite`,
+            fontSize: mark.size,
+            opacity: mark.opacity,
+            color: mark.gold ? "rgb(212,175,55)" : "rgba(255,255,255,0.9)",
+            animation: `wm-drift ${mark.duration}s linear ${mark.delay}s infinite`,
             textShadow: "0 1px 2px rgba(0,0,0,0.6)",
           }}
         >
@@ -217,19 +221,19 @@ function Watermarks() {
 
 function Preloader({ progress, total }: { progress: number; total: number }) {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-tarot-black text-tarot-gold gap-6">
-      <div className="font-serif text-2xl tracking-[0.35em] uppercase animate-pulse text-center">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-tarot-black text-tarot-gold">
+      <div className="text-center font-serif text-2xl uppercase tracking-[0.35em] animate-pulse">
         Carregando lâminas...
       </div>
 
-      <div className="w-64 h-[2px] bg-tarot-gold/20 overflow-hidden">
+      <div className="h-[2px] w-64 overflow-hidden bg-tarot-gold/20">
         <div
           className="h-full bg-tarot-gold transition-all duration-200"
           style={{ width: `${(progress / total) * 100}%` }}
         />
       </div>
 
-      <div className="text-xs text-tarot-gold/60 font-serif tracking-widest">
+      <div className="font-serif text-xs tracking-widest text-tarot-gold/60">
         {progress} / {total}
       </div>
     </div>
@@ -257,8 +261,7 @@ export function TarotReel() {
     const markDone = () => {
       if (cancelled) return;
 
-      loaded++;
-
+      loaded += 1;
       setLoadedCount(loaded);
 
       if (loaded >= tarotCards.length) {
@@ -267,11 +270,10 @@ export function TarotReel() {
     };
 
     tarotCards.forEach((card) => {
-      const img = new Image();
-
-      img.onload = markDone;
-      img.onerror = markDone;
-      img.src = card.image;
+      const image = new Image();
+      image.onload = markDone;
+      image.onerror = markDone;
+      image.src = card.image;
     });
 
     const mary = new Image();
@@ -287,7 +289,7 @@ export function TarotReel() {
   }
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-black flex items-center justify-center">
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black">
       <div
         className="relative overflow-hidden bg-tarot-black shadow-[0_0_60px_rgba(0,0,0,0.9)]"
         style={{
@@ -313,14 +315,14 @@ export function TarotReel() {
         <Particles />
         <Watermarks />
 
-        <div className="relative z-10 h-full w-full flex flex-col items-center justify-between py-[5vh] px-4">
-          <div className="text-center w-full">
-            <div className="font-serif text-tarot-gold uppercase tracking-[0.4em] text-[10px] mb-2 opacity-85">
+        <div className="relative z-10 flex h-full w-full flex-col items-center justify-between px-4 py-[5vh]">
+          <div className="w-full text-center">
+            <div className="mb-2 font-serif text-[10px] uppercase tracking-[0.4em] text-tarot-gold opacity-85">
               Mary Morgan • Tarot
             </div>
 
             <h1
-              className="font-serif text-white text-[20px] leading-tight px-4"
+              className="px-4 font-serif text-[20px] leading-tight text-white"
               style={{
                 textShadow:
                   "0 2px 10px rgba(0,0,0,0.95), 0 0 22px rgba(212,175,55,0.35)",
@@ -329,18 +331,18 @@ export function TarotReel() {
               Respire, pense na situação e pause o vídeo
             </h1>
 
-            <div className="mt-2 mx-auto h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
+            <div className="mx-auto mt-2 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
           </div>
 
-          <div className="w-full flex flex-col items-center gap-3">
-            <div className="w-full flex items-end justify-center gap-2">
+          <div className="flex w-full flex-col items-center gap-3">
+            <div className="flex w-full items-end justify-center gap-2">
               <SlotColumn cards={decks[0]} speed={SLOT_SPEEDS[0]} />
               <SlotColumn cards={decks[1]} speed={SLOT_SPEEDS[1]} />
               <SlotColumn cards={decks[2]} speed={SLOT_SPEEDS[2]} />
             </div>
 
             <div
-              className="font-serif tracking-[0.35em] uppercase text-[12px] text-tarot-gold"
+              className="font-serif text-[12px] uppercase tracking-[0.35em] text-tarot-gold"
               style={{
                 textShadow: "0 2px 6px rgba(0,0,0,0.9), 0 0 14px rgba(212,175,55,0.45)",
               }}
@@ -349,11 +351,11 @@ export function TarotReel() {
             </div>
           </div>
 
-          <div className="text-center w-full -mt-12">
+          <div className="-mt-12 w-full text-center">
             <div className="mx-auto mb-2 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
 
             <h2
-              className="font-serif text-white text-[18px]"
+              className="font-serif text-[18px] text-white"
               style={{
                 textShadow:
                   "0 2px 10px rgba(0,0,0,0.95), 0 0 22px rgba(212,175,55,0.3)",
@@ -367,4 +369,3 @@ export function TarotReel() {
     </div>
   );
 }
-```
