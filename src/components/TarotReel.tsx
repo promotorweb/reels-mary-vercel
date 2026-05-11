@@ -1,3 +1,4 @@
+```tsx
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { tarotCards, type TarotCard } from "@/lib/tarot-cards";
 
@@ -58,6 +59,7 @@ function Strip({
       }
 
       const idx = Math.floor((next + CARD_HEIGHT / 2) / CARD_HEIGHT) % cards.length;
+
       if (idx !== lastIndexRef.current) {
         lastIndexRef.current = idx;
         onCurrentChange(cards[idx].name);
@@ -67,6 +69,7 @@ function Strip({
     };
 
     raf = requestAnimationFrame(tick);
+
     return () => cancelAnimationFrame(raf);
   }, [speed, cycle, cards, onCurrentChange]);
 
@@ -129,6 +132,7 @@ function SlotColumn({ cards, speed }: { cards: TarotCard[]; speed: number }) {
       >
         {currentName}
       </div>
+
       <Strip cards={cards} speed={speed} onCurrentChange={setCurrentName} />
     </div>
   );
@@ -217,12 +221,14 @@ function Preloader({ progress, total }: { progress: number; total: number }) {
       <div className="font-serif text-2xl tracking-[0.35em] uppercase animate-pulse text-center">
         Carregando lâminas...
       </div>
+
       <div className="w-64 h-[2px] bg-tarot-gold/20 overflow-hidden">
         <div
           className="h-full bg-tarot-gold transition-all duration-200"
           style={{ width: `${(progress / total) * 100}%` }}
         />
       </div>
+
       <div className="text-xs text-tarot-gold/60 font-serif tracking-widest">
         {progress} / {total}
       </div>
@@ -233,6 +239,7 @@ function Preloader({ progress, total }: { progress: number; total: number }) {
 export function TarotReel() {
   const [loadedCount, setLoadedCount] = useState(0);
   const [ready, setReady] = useState(false);
+
   const total = tarotCards.length;
 
   const decks = useMemo(
@@ -249,13 +256,19 @@ export function TarotReel() {
 
     const markDone = () => {
       if (cancelled) return;
+
       loaded++;
+
       setLoadedCount(loaded);
-      if (loaded >= tarotCards.length) setReady(true);
+
+      if (loaded >= tarotCards.length) {
+        setReady(true);
+      }
     };
 
     tarotCards.forEach((card) => {
       const img = new Image();
+
       img.onload = markDone;
       img.onerror = markDone;
       img.src = card.image;
@@ -305,15 +318,17 @@ export function TarotReel() {
             <div className="font-serif text-tarot-gold uppercase tracking-[0.4em] text-[10px] mb-2 opacity-85">
               Mary Morgan • Tarot
             </div>
+
             <h1
-              className="font-serif text-white text-[20px] leading-tight px-2"
+              className="font-serif text-white text-[20px] leading-tight px-4"
               style={{
                 textShadow:
                   "0 2px 10px rgba(0,0,0,0.95), 0 0 22px rgba(212,175,55,0.35)",
               }}
             >
-              Pause o Vídeo e veja seu Jogo
+              Respire, pense na situação e pause o vídeo
             </h1>
+
             <div className="mt-2 mx-auto h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
           </div>
 
@@ -323,6 +338,7 @@ export function TarotReel() {
               <SlotColumn cards={decks[1]} speed={SLOT_SPEEDS[1]} />
               <SlotColumn cards={decks[2]} speed={SLOT_SPEEDS[2]} />
             </div>
+
             <div
               className="font-serif tracking-[0.35em] uppercase text-[12px] text-tarot-gold"
               style={{
@@ -333,8 +349,9 @@ export function TarotReel() {
             </div>
           </div>
 
-          <div className="text-center w-full">
+          <div className="text-center w-full -mt-12">
             <div className="mx-auto mb-2 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
+
             <h2
               className="font-serif text-white text-[18px]"
               style={{
@@ -350,3 +367,4 @@ export function TarotReel() {
     </div>
   );
 }
+```
