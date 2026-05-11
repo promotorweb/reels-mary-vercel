@@ -315,14 +315,14 @@ export function TarotReel() {
         <Particles />
         <Watermarks />
 
-        <div className="relative z-10 flex h-full w-full flex-col items-center justify-between px-4 py-[5vh]">
+        <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-10 px-4 py-10">
           <div className="w-full text-center">
             <div className="mb-2 font-serif text-[10px] uppercase tracking-[0.4em] text-tarot-gold opacity-85">
               Mary Morgan • Tarot
             </div>
 
             <h1
-              className="px-4 font-serif text-[20px] leading-tight text-white"
+              className="px-6 font-serif text-[20px] leading-tight text-white"
               style={{
                 textShadow:
                   "0 2px 10px rgba(0,0,0,0.95), 0 0 22px rgba(212,175,55,0.35)",
@@ -331,7 +331,7 @@ export function TarotReel() {
               Respire, pense na situação e pause o vídeo
             </h1>
 
-            <div className="mx-auto mt-2 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
+            <div className="mx-auto mt-3 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
           </div>
 
           <div className="flex w-full flex-col items-center gap-3">
@@ -351,11 +351,11 @@ export function TarotReel() {
             </div>
           </div>
 
-          <div className="-mt-12 w-full text-center">
-            <div className="mx-auto mb-2 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
+          <div className="w-full text-center">
+            <div className="mx-auto mb-3 h-px w-20 bg-gradient-to-r from-transparent via-tarot-gold to-transparent opacity-70" />
 
             <h2
-              className="font-serif text-[18px] text-white"
+              className="px-6 font-serif text-[18px] text-white"
               style={{
                 textShadow:
                   "0 2px 10px rgba(0,0,0,0.95), 0 0 22px rgba(212,175,55,0.3)",
