@@ -3,6 +3,7 @@ import { tarotCards, type TarotCard } from "@/lib/tarot-cards";
 
 const CARD_HEIGHT = 180;
 const SLOT_SPEEDS = [900, 720, 1080];
+const SNAP_FORCE = 0.18;
 
 function shuffle<T>(arr: T[], seed: number): T[] {
   const a = arr.slice();
@@ -56,13 +57,24 @@ function Strip({
         next -= cycle;
       }
 
+      const snapTarget = Math.round(next / CARD_HEIGHT) * CARD_HEIGHT;
+      next += (snapTarget - next) * SNAP_FORCE;
+
+      if (next >= cycle) {
+        next -= cycle;
+      }
+
+      if (next < 0) {
+        next += cycle;
+      }
+
       offsetRef.current = next;
 
       if (innerRef.current) {
         innerRef.current.style.transform = `translate3d(0, ${-next}px, 0)`;
       }
 
-      const index = Math.floor((next + CARD_HEIGHT / 2) / CARD_HEIGHT) % cards.length;
+      const index = Math.round(next / CARD_HEIGHT) % cards.length;
 
       if (index !== lastIndexRef.current) {
         lastIndexRef.current = index;
