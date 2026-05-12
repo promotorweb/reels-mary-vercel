@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { tarotCards, type TarotCard } from "@/lib/tarot-cards";
 
-const CARD_HEIGHT = 180;
-const SLOT_SPEEDS = [900, 720, 1080];
-const SNAP_FORCE = 0.18;
+const SLOT_INTERVALS = [120, 150, 180];
 
 function shuffle<T>(arr: T[], seed: number): T[] {
   const a = arr.slice();
@@ -18,125 +16,17 @@ function shuffle<T>(arr: T[], seed: number): T[] {
   return a;
 }
 
-function Strip({
-  cards,
-  speed,
-  onCurrentChange,
-}: {
-  cards: TarotCard[];
-  speed: number;
-  onCurrentChange: (name: string) => void;
-}) {
-  const innerRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
-  const lastTimeRef = useRef<number | null>(null);
-  const lastIndexRef = useRef<number>(-1);
-
-  const repeated = useMemo(() => {
-    const out: TarotCard[] = [];
-    for (let i = 0; i < 4; i++) out.push(...cards);
-    return out;
-  }, [cards]);
-
-  const cycle = cards.length * CARD_HEIGHT;
+function SlotColumn({ cards, interval }: { cards: TarotCard[]; interval: number }) {
+  const [index, setIndex] = useState(0);
+  const currentCard = cards[index];
 
   useEffect(() => {
-    let raf = 0;
+    const timer = window.setInterval(() => {
+      setIndex((current) => (current + 1) % cards.length);
+    }, interval);
 
-    const tick = (time: number) => {
-      if (lastTimeRef.current === null) {
-        lastTimeRef.current = time;
-      }
-
-      const delta = (time - lastTimeRef.current) / 1000;
-      lastTimeRef.current = time;
-
-      let next = offsetRef.current + speed * delta;
-
-      if (next >= cycle) {
-        next -= cycle;
-      }
-
-      const snapTarget = Math.round(next / CARD_HEIGHT) * CARD_HEIGHT;
-      next += (snapTarget - next) * SNAP_FORCE;
-
-      if (next >= cycle) {
-        next -= cycle;
-      }
-
-      if (next < 0) {
-        next += cycle;
-      }
-
-      offsetRef.current = next;
-
-      if (innerRef.current) {
-        innerRef.current.style.transform = `translate3d(0, ${-next}px, 0)`;
-      }
-
-      const index = Math.round(next / CARD_HEIGHT) % cards.length;
-
-      if (index !== lastIndexRef.current) {
-        lastIndexRef.current = index;
-        onCurrentChange(cards[index].name);
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-
-    return () => cancelAnimationFrame(raf);
-  }, [cards, cycle, speed, onCurrentChange]);
-
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-[10px] ring-1 ring-tarot-gold/40 bg-black/40"
-      style={{
-        height: CARD_HEIGHT,
-        filter:
-          "drop-shadow(0 8px 24px rgba(0,0,0,0.75)) drop-shadow(0 0 18px rgba(212,175,55,0.18))",
-      }}
-    >
-      <div ref={innerRef} style={{ willChange: "transform", transform: "translate3d(0,0,0)" }}>
-        {repeated.map((card, index) => (
-          <div
-            key={`${card.id}-${index}`}
-            style={{
-              height: CARD_HEIGHT,
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <img
-              src={card.image}
-              alt={card.name}
-              draggable={false}
-              loading="eager"
-              decoding="sync"
-              style={{
-                height: "100%",
-                width: "100%",
-                objectFit: "contain",
-                display: "block",
-                userSelect: "none",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-black/70 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-black/70 to-transparent" />
-    </div>
-  );
-}
-
-function SlotColumn({ cards, speed }: { cards: TarotCard[]; speed: number }) {
-  const [currentName, setCurrentName] = useState(cards[0]?.name ?? "");
+    return () => window.clearInterval(timer);
+  }, [cards.length, interval]);
 
   return (
     <div className="flex w-[29%] flex-col items-center gap-2">
@@ -146,10 +36,32 @@ function SlotColumn({ cards, speed }: { cards: TarotCard[]; speed: number }) {
           textShadow: "0 2px 6px rgba(0,0,0,0.85), 0 0 10px rgba(212,175,55,0.35)",
         }}
       >
-        {currentName}
+        {currentCard.name}
       </div>
 
-      <Strip cards={cards} speed={speed} onCurrentChange={setCurrentName} />
+      <div
+        className="relative flex h-[180px] w-full items-center justify-center overflow-hidden rounded-[10px] bg-black/40 ring-1 ring-tarot-gold/40"
+        style={{
+          filter:
+            "drop-shadow(0 8px 24px rgba(0,0,0,0.75)) drop-shadow(0 0 18px rgba(212,175,55,0.18))",
+        }}
+      >
+        <img
+          key={currentCard.id}
+          src={currentCard.image}
+          alt={currentCard.name}
+          draggable={false}
+          loading="eager"
+          decoding="sync"
+          className="h-full w-full select-none object-contain"
+          style={{
+            pointerEvents: "none",
+            animation: "card-pop 140ms ease-out",
+          }}
+        />
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/10" />
+      </div>
     </div>
   );
 }
@@ -289,6 +201,8 @@ export function TarotReel() {
     });
 
     const mary = new Image();
+    mary.onload = () => undefined;
+    mary.onerror = () => undefined;
     mary.src = "/assets/mary/mary-morgan.webp";
 
     return () => {
@@ -348,9 +262,9 @@ export function TarotReel() {
 
           <div className="flex w-full flex-col items-center gap-3">
             <div className="flex w-full items-end justify-center gap-2">
-              <SlotColumn cards={decks[0]} speed={SLOT_SPEEDS[0]} />
-              <SlotColumn cards={decks[1]} speed={SLOT_SPEEDS[1]} />
-              <SlotColumn cards={decks[2]} speed={SLOT_SPEEDS[2]} />
+              <SlotColumn cards={decks[0]} interval={SLOT_INTERVALS[0]} />
+              <SlotColumn cards={decks[1]} interval={SLOT_INTERVALS[1]} />
+              <SlotColumn cards={decks[2]} interval={SLOT_INTERVALS[2]} />
             </div>
 
             <div
